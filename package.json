@@ -1,0 +1,28 @@
+{
+  "name": "google-rich-results-tester",
+  "version": "1.0.0",
+  "description": "Automated testing tool for Google Rich Results Test",
+  "main": "rich-results-tester.js",
+  "scripts": {
+    "test": "node rich-results-tester.js",
+    "install-deps": "npm install puppeteer",
+    "example": "node rich-results-tester.js https://example.com"
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.0",
+    "puppeteer": "^21.11.0"
+  },
+  "keywords": [
+    "google",
+    "rich-results",
+    "seo",
+    "automation",
+    "testing",
+    "puppeteer"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
