@@ -29,52 +29,56 @@ const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
 
-async function parseArgs() {
-  const args = process.argv.slice(2);
+// const inputUrl = 'Enter the Input URL to process'; //Enter the URL (mandatory)
+const inputUrl = 'squeegeedetail.com'; //Enter the URL (mandatory)
+
+async function parseArgs(inputUrl) {
+  // const args = process.argv.slice(2);
+  // console.log("argsssss",args)
   const config = {
-    url: null,
-    x: 0,
-    y: 0,
-    width: 1024,
-    height: 768,
+    url: inputUrl,
+    x: 470,
+    y: 230,
+    width: 970,
+    height: 560,
     output: "rich-results.png",
     retries: 3,
     timeout: 60000,
   };
 
-  for (let i = 0; i < args.length; i++) {
-    if (args[i].startsWith("--")) {
-      const [key, val] = args[i].split("=");
-      switch (key) {
-        case "--url":
-          config.url = val;
-          break;
-        case "--x":
-          config.x = parseInt(val, 10);
-          break;
-        case "--y":
-          config.y = parseInt(val, 10);
-          break;
-        case "--width":
-          config.width = parseInt(val, 10);
-          break;
-        case "--height":
-          config.height = parseInt(val, 10);
-          break;
-        case "--output":
-          config.output = val;
-          break;
-        case "--retries":
-          config.retries = parseInt(val, 10);
-          break;
-        case "--timeout":
-          config.timeout = parseInt(val, 10);
-          break;
-        default:
-          console.warn(`Unknown flag: ${key}`);
-      }
-    }
-  }
+  // for (let i = 0; i < args.length; i++) {
+  //   if (args[i].startsWith("--")) {
+  //     const [key, val] = args[i].split("=");
+  //     switch (key) {
+  //       case "--url":
+  //         config.url = val;
+  //         break;
+  //       case "--x":
+  //         config.x = parseInt(val, 10);
+  //         break;
+  //       case "--y":
+  //         config.y = parseInt(val, 10);
+  //         break;
+  //       case "--width":
+  //         config.width = parseInt(val, 10);
+  //         break;
+  //       case "--height":
+  //         config.height = parseInt(val, 10);
+  //         break;
+  //       case "--output":
+  //         config.output = val;
+  //         break;
+  //       case "--retries":
+  //         config.retries = parseInt(val, 10);
+  //         break;
+  //       case "--timeout":
+  //         config.timeout = parseInt(val, 10);
+  //         break;
+  //       default:
+  //         console.warn(`Unknown flag: ${key}`);
+  //     }
+  //   }
+  // }
 
   if (!config.url) {
     console.error("ERROR: --url is required");
@@ -88,7 +92,7 @@ async function handleRetryOnFailure(page, maxRetries = 5) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     // 1) Check if “Something went wrong” modal is visible
     const errorModalVisible = await page.evaluate(() =>
-      Array.from(document.querySelectorAll("div, span")).some(el =>
+      Array.from(document.querySelectorAll("div, span")).some((el) =>
         /something went wrong/i.test(el.innerText)
       )
     );
@@ -98,7 +102,9 @@ async function handleRetryOnFailure(page, maxRetries = 5) {
       return;
     }
 
-    console.warn(`⚠️ 'Something went wrong' detected. Attempt ${attempt}/${maxRetries}...`);
+    console.warn(
+      `⚠️ 'Something went wrong' detected. Attempt ${attempt}/${maxRetries}...`
+    );
 
     // 2) Click “Dismiss” if it’s there
     const [dismissButton] = await page.$x(
@@ -123,16 +129,17 @@ async function handleRetryOnFailure(page, maxRetries = 5) {
 
   // 4) After all retries, check if the modal is still visible—if so, throw.
   const stillFailing = await page.evaluate(() =>
-    Array.from(document.querySelectorAll("div, span")).some(el =>
+    Array.from(document.querySelectorAll("div, span")).some((el) =>
       /something went wrong/i.test(el.innerText)
     )
   );
 
   if (stillFailing) {
-    throw new Error("❌ Repeated 'Something went wrong' errors after max retries.");
+    throw new Error(
+      "❌ Repeated 'Something went wrong' errors after max retries."
+    );
   }
 }
-
 
 // Helper to retry an async operation with exponential backoff
 async function retryOperation(fn, retries = 3, delayMs = 1000) {
@@ -176,7 +183,8 @@ async function waitForTestCompletion(page, timeout) {
     // Check for a known indicator that results are shown
     const resultsVisible = await page.evaluate(() => {
       // 1) “View details” button
-      if (document.querySelector('button[aria-label*="View details"]')) return true;
+      if (document.querySelector('button[aria-label*="View details"]'))
+        return true;
       // 2) A <pre> block (JSON‐LD)
       if (document.querySelector("pre")) return true;
       // 3) “TEST COMPLETE” text in a <span>
@@ -197,12 +205,36 @@ async function waitForTestCompletion(page, timeout) {
   throw new Error("Timed out waiting for Rich Results Test to complete");
 }
 
-(async () => {
-  const { url, x, y, width, height, output, retries, timeout } =
-    await parseArgs();
 
-  const browser = await puppeteer.launch({ headless: false });
+
+async function main() {
+  const { url, x, y, width, height, output, retries, timeout } =
+    await parseArgs(inputUrl);
+
+  const os = require("os");
+
+  const chromeUserDataDir = path.join(
+    os.homedir(),
+    "AppData",
+    "Local",
+    "Google",
+    "Chrome",
+    "User Data"
+  );
+
+  // Use a specific profile — adjust "Profile 1" or use "Default"
+  const userProfile = "Default"; // or "Default" if you prefer
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--start-maximized"],
+    executablePath:
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    userDataDir: path.join(chromeUserDataDir, userProfile),
+  });
+
   const page = await browser.newPage();
+  await page.setViewport({ width: 1920, height: 1200 });
 
   // Increase default timeout
   page.setDefaultTimeout(timeout);
@@ -277,8 +309,7 @@ async function waitForTestCompletion(page, timeout) {
     );
 
     // Give the overlay a moment to render
-    console.log("Typeofff::: ", typeof page.waitForTimeout); // Should be 'function'
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 2500));
 
     // 7) Take a screenshot of the specified region
     const screenshotDir = path.join(process.cwd(), "screenshots");
@@ -296,6 +327,12 @@ async function waitForTestCompletion(page, timeout) {
     console.error("❌ Error during automation:", err);
     process.exit(1);
   } finally {
-    // await browser.close();
+    await browser.close();
   }
-})();
+}
+
+if (require.main === module) {
+  main().catch((error) => {
+    console.log("Script Error:", error)
+  })
+}

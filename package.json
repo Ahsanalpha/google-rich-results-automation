@@ -4,11 +4,12 @@
   "description": "Automated testing tool for Google Rich Results Test",
   "main": "rich-results-tester.js",
   "scripts": {
-    "test": "node rich-results-tester.js",
+    "test": "node rich-results-script.js",
     "install-deps": "npm install puppeteer",
     "example": "node rich-results-tester.js https://example.com"
   },
   "dependencies": {
+    "dotenv": "^16.5.0",
     "fs-extra": "^11.3.0",
     "puppeteer": "^21.11.0"
   },
