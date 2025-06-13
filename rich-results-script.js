@@ -30,7 +30,6 @@ const fs = require("fs");
 const path = require("path");
 
 // const inputUrl = 'Enter the Input URL to process'; //Enter the URL (mandatory)
-const inputUrl = 'squeegeedetail.com'; //Enter the URL (mandatory)
 
 async function parseArgs(inputUrl) {
   // const args = process.argv.slice(2);
@@ -45,40 +44,6 @@ async function parseArgs(inputUrl) {
     retries: 3,
     timeout: 60000,
   };
-
-  // for (let i = 0; i < args.length; i++) {
-  //   if (args[i].startsWith("--")) {
-  //     const [key, val] = args[i].split("=");
-  //     switch (key) {
-  //       case "--url":
-  //         config.url = val;
-  //         break;
-  //       case "--x":
-  //         config.x = parseInt(val, 10);
-  //         break;
-  //       case "--y":
-  //         config.y = parseInt(val, 10);
-  //         break;
-  //       case "--width":
-  //         config.width = parseInt(val, 10);
-  //         break;
-  //       case "--height":
-  //         config.height = parseInt(val, 10);
-  //         break;
-  //       case "--output":
-  //         config.output = val;
-  //         break;
-  //       case "--retries":
-  //         config.retries = parseInt(val, 10);
-  //         break;
-  //       case "--timeout":
-  //         config.timeout = parseInt(val, 10);
-  //         break;
-  //       default:
-  //         console.warn(`Unknown flag: ${key}`);
-  //     }
-  //   }
-  // }
 
   if (!config.url) {
     console.error("ERROR: --url is required");
@@ -205,9 +170,11 @@ async function waitForTestCompletion(page, timeout) {
   throw new Error("Timed out waiting for Rich Results Test to complete");
 }
 
+// const exampleInputUrl = 'squeegeedetail.com'; //Enter the URL (mandatory)
 
 
-async function main() {
+
+async function InitializeRichResultsScript(inputUrl) {
   const { url, x, y, width, height, output, retries, timeout } =
     await parseArgs(inputUrl);
 
@@ -331,8 +298,10 @@ async function main() {
   }
 }
 
+module.exports = {InitializeRichResultsScript}
+
 if (require.main === module) {
-  main().catch((error) => {
+  InitializeRichResultsScript('squeegeedetail.com').catch((error) => {
     console.log("Script Error:", error)
   })
 }
