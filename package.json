@@ -4,7 +4,7 @@
   "description": "Automated testing tool for Google Rich Results Test",
   "main": "rich-results-tester.js",
   "scripts": {
-    "test": "node rich-results-script.js",
+    "start": "node rich-results-script.js",
     "install-deps": "npm install puppeteer",
     "example": "node rich-results-tester.js https://example.com"
   },

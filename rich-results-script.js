@@ -226,7 +226,7 @@ async function main() {
   const userProfile = "Default"; // or "Default" if you prefer
 
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     args: ["--start-maximized"],
     executablePath:
       "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
